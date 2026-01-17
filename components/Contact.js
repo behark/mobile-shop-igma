@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { sendEmailNotification, formatContactEmail } from '@/lib/email-service'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,8 @@ export default function Contact() {
     phone: '',
     message: ''
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
 
   const handleChange = (e) => {
     setFormData({
@@ -15,25 +18,53 @@ export default function Contact() {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    const subject = encodeURIComponent(`Kontakt nga ${formData.name}`)
-    const body = encodeURIComponent(
-      `Emri: ${formData.name}\nEmail: ${formData.email}\nTelefoni: ${formData.phone}\n\nMesazhi:\n${formData.message}`
-    )
-    const mailtoLink = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
-    
-    window.location.href = mailtoLink
-    
-    alert('Faleminderit për mesazhin tuaj! Klienti juaj i email-it do të hapet së shpejti.')
-    
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      message: ''
-    })
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+
+    try {
+      // Send email notification
+      const emailData = formatContactEmail(formData)
+      await sendEmailNotification({
+        to: 'igma2unlock@gmail.com',
+        subject: emailData.subject,
+        body: emailData.body,
+        type: 'contact'
+      })
+
+      // Also send mailto as fallback
+      const subject = encodeURIComponent(`Kontakt nga ${formData.name}`)
+      const body = encodeURIComponent(
+        `Emri: ${formData.name}\nEmail: ${formData.email}\nTelefoni: ${formData.phone}\n\nMesazhi:\n${formData.message}`
+      )
+      const mailtoLink = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
+      window.location.href = mailtoLink
+
+      setSubmitStatus('success')
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+      })
+
+      setTimeout(() => {
+        setSubmitStatus(null)
+      }, 5000)
+    } catch (error) {
+      console.error('Failed to send email:', error)
+      setSubmitStatus('error')
+      
+      // Fallback to mailto
+      const subject = encodeURIComponent(`Kontakt nga ${formData.name}`)
+      const body = encodeURIComponent(
+        `Emri: ${formData.name}\nEmail: ${formData.email}\nTelefoni: ${formData.phone}\n\nMesazhi:\n${formData.message}`
+      )
+      window.location.href = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const contactInfo = [
@@ -146,8 +177,22 @@ export default function Contact() {
                   required
                 ></textarea>
               </div>
-              <button type="submit" className="btn btn-primary">
-                Dërgo Mesazhin
+              {submitStatus === 'success' && (
+                <div className="form-success">
+                  <p>✓ Faleminderit për mesazhin tuaj! Do t'ju përgjigjemi së shpejti.</p>
+                </div>
+              )}
+              {submitStatus === 'error' && (
+                <div className="form-error">
+                  <p>⚠ Ka ndodhur një gabim. Ju lutem provoni përsëri ose na kontaktoni direkt.</p>
+                </div>
+              )}
+              <button 
+                type="submit" 
+                className="btn btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Duke dërguar...' : 'Dërgo Mesazhin'}
               </button>
             </form>
           </div>

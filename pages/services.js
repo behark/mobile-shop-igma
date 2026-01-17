@@ -1,11 +1,17 @@
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 import Navbar from '@/components/Navbar'
 import Services from '@/components/Services'
 import Benefits from '@/components/Benefits'
-import Pricing from '@/components/Pricing'
-import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
+
+// Lazy load components
+const Pricing = dynamic(() => import('@/components/Pricing'))
+const FAQ = dynamic(() => import('@/components/FAQ'))
+const QuoteCalculator = dynamic(() => import('@/components/QuoteCalculator'))
+const RepairTracking = dynamic(() => import('@/components/RepairTracking'))
+const ServiceProcess = dynamic(() => import('@/components/ServiceProcess'))
 
 export default function ServicesPage() {
   return (
@@ -19,12 +25,24 @@ export default function ServicesPage() {
       </Head>
 
       <Navbar />
-      <div style={{ paddingTop: '80px' }}>
+      <main style={{ paddingTop: '80px' }}>
+        <section className="page-hero">
+          <div className="container">
+            <h1 className="page-title">Shërbimet Tona</h1>
+            <p className="page-subtitle">
+              Zgjidhje të plota për telefonat mobil për të gjitha nevojat tuaja
+            </p>
+          </div>
+        </section>
+        
         <Services />
         <Benefits />
+        <ServiceProcess />
+        <QuoteCalculator />
+        <RepairTracking />
         <Pricing />
         <FAQ />
-      </div>
+      </main>
       <Footer />
       <FloatingWhatsApp />
     </>

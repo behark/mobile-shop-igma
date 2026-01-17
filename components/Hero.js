@@ -1,3 +1,5 @@
+'use client'
+
 export default function Hero() {
   const handleLinkClick = (e, href) => {
     e.preventDefault()
@@ -22,6 +24,7 @@ export default function Hero() {
           <p className="hero-description">
             Shitje, riparime dhe shërbime profesionale për telefonat mobil. E riparojmë saktë, herën e parë.
           </p>
+
           <div className="hero-buttons">
             <a href="#contact" className="btn btn-primary" onClick={(e) => handleLinkClick(e, '#contact')}>
               Na Kontaktoni

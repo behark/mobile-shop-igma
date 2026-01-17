@@ -1,10 +1,15 @@
 import Head from 'next/head'
+import dynamic from 'next/dynamic'
 import Navbar from '@/components/Navbar'
 import Contact from '@/components/Contact'
-import OpeningHours from '@/components/OpeningHours'
-import GoogleMaps from '@/components/GoogleMaps'
 import Footer from '@/components/Footer'
 import FloatingWhatsApp from '@/components/FloatingWhatsApp'
+
+// Lazy load components
+const BookingSystem = dynamic(() => import('@/components/BookingSystem'))
+const OpeningHours = dynamic(() => import('@/components/OpeningHours'))
+const GoogleMaps = dynamic(() => import('@/components/GoogleMaps'))
+const FAQ = dynamic(() => import('@/components/FAQ'))
 
 export default function ContactPage() {
   return (
@@ -18,7 +23,7 @@ export default function ContactPage() {
       </Head>
 
       <Navbar />
-      <div style={{ paddingTop: '80px' }}>
+      <main style={{ paddingTop: '80px' }}>
         <section className="page-hero">
           <div className="container">
             <h1 className="page-title">Na Kontaktoni</h1>
@@ -27,10 +32,17 @@ export default function ContactPage() {
             </p>
           </div>
         </section>
+        
         <Contact />
+        <section id="booking">
+          <BookingSystem />
+        </section>
         <OpeningHours />
         <GoogleMaps />
-      </div>
+        <section id="faq">
+          <FAQ />
+        </section>
+      </main>
       <Footer />
       <FloatingWhatsApp />
     </>

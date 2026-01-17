@@ -3,120 +3,180 @@
 import { useState, useEffect, useRef } from 'react'
 import { FaComments, FaTimes, FaPaperPlane, FaWhatsapp } from 'react-icons/fa'
 
+// Format time consistently for server and client
+function formatTime(date) {
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
 export default function LiveChat() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
     {
-      text: 'Përshëndetje! Si mund t\'ju ndihmoj?',
+      id: 1,
+      text: 'Përshëndetje! Si mund t\'ju ndihmojë?',
       sender: 'bot',
-      time: new Date().toLocaleTimeString('sq-AL', { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date()
     }
   ])
   const [inputMessage, setInputMessage] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef(null)
+  const chatContainerRef = useRef(null)
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  // Auto-responses (in production, this would connect to a chat service)
+  const autoResponses = {
+    'çmim': 'Çmimet tona variojnë sipas shërbimit. Për informacion më të detajuar, ju lutem na kontaktoni në 045 444 244.',
+    'kohë': 'Orari ynë i punës është nga e Hënë deri në të Shtunë, nga ora 09:00 deri në 18:00.',
+    'adresë': 'Jemi të vendosur në Rr. Mbrëtresha Teutë, Mitrovicë, Kosovë.',
+    'riparim': 'Ofrojmë riparime për të gjitha markat e telefonave mobil. Koha e riparimit varet nga problemi.',
+    'dekodim': 'Po, ofrojmë shërbime dekodimi për të gjitha telefonat mobil.',
+    'bateri': 'Po, ndryshojmë bateritë për të gjitha modelet e telefonave.',
+    'ekran': 'Po, ndryshojmë ekranet dhe xhamat për të gjitha modelet.'
   }
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    if (isOpen && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, isOpen])
 
-  const handleSend = (e) => {
+  const handleSendMessage = (e) => {
     e.preventDefault()
     if (!inputMessage.trim()) return
 
     const userMessage = {
+      id: messages.length + 1,
       text: inputMessage,
       sender: 'user',
-      time: new Date().toLocaleTimeString('sq-AL', { hour: '2-digit', minute: '2-digit' })
+      timestamp: new Date()
     }
 
     setMessages([...messages, userMessage])
     setInputMessage('')
+    setIsTyping(true)
 
     // Simulate bot response
     setTimeout(() => {
-      const botResponses = [
-        'Faleminderit për mesazhin tuaj! Një përfaqësues do t\'ju përgjigjet së shpejti.',
-        'Për informacione më të shpejta, na kontaktoni në WhatsApp: 045 444 244',
-        'A dëshironi të rezervoni një termin? Mund të përdorni formularin e rezervimit në faqe.',
-        'Për pyetje urgjente, na telefononi në 045 444 244 ose na shkruani në WhatsApp.'
-      ]
-      const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)]
-      
-      setMessages(prev => [...prev, {
-        text: randomResponse,
+      const lowerMessage = inputMessage.toLowerCase()
+      let botResponse = 'Faleminderit për mesazhin tuaj! Për informacion më të detajuar, ju lutem na kontaktoni në 045 444 244 ose në WhatsApp.'
+
+      // Check for keywords
+      for (const [keyword, response] of Object.entries(autoResponses)) {
+        if (lowerMessage.includes(keyword)) {
+          botResponse = response
+          break
+        }
+      }
+
+      const botMessage = {
+        id: messages.length + 2,
+        text: botResponse,
         sender: 'bot',
-        time: new Date().toLocaleTimeString('sq-AL', { hour: '2-digit', minute: '2-digit' })
-      }])
-    }, 1000)
+        timestamp: new Date()
+      }
+
+      setMessages(prev => [...prev, botMessage])
+      setIsTyping(false)
+    }, 1500)
   }
 
-  const openWhatsApp = () => {
-    window.open('https://wa.me/38345444244?text=Përshëndetje! Kam një pyetje.', '_blank')
+  const handleWhatsAppRedirect = () => {
+    const message = encodeURIComponent('Përshëndetje! Dua të pyes për shërbimet tuaja.')
+    window.open(`https://wa.me/38345444244?text=${message}`, '_blank')
   }
 
   return (
     <>
+      {/* Chat Button */}
       {!isOpen && (
         <button
           className="live-chat-button"
           onClick={() => setIsOpen(true)}
-          aria-label="Hap chat"
+          aria-label="Hap chat-in"
         >
           <FaComments />
-          <span className="chat-badge">1</span>
+          <span className="chat-badge">Chat</span>
         </button>
       )}
 
+      {/* Chat Window */}
       {isOpen && (
-        <div className="live-chat-widget">
+        <div className="live-chat-window" ref={chatContainerRef}>
           <div className="chat-header">
             <div className="chat-header-info">
               <h3>Chat Live</h3>
-              <p>Përgjigjemi zakonisht brenda disa minutave</p>
+              <p className="chat-status">Online</p>
             </div>
-            <button
-              className="chat-close"
-              onClick={() => setIsOpen(false)}
-              aria-label="Mbyll chat"
-            >
-              <FaTimes />
-            </button>
+            <div className="chat-header-actions">
+              <button
+                className="chat-whatsapp-btn"
+                onClick={handleWhatsAppRedirect}
+                aria-label="Hap WhatsApp"
+                title="Chat në WhatsApp"
+              >
+                <FaWhatsapp />
+              </button>
+              <button
+                className="chat-close-btn"
+                onClick={() => setIsOpen(false)}
+                aria-label="Mbyll chat-in"
+              >
+                <FaTimes />
+              </button>
+            </div>
           </div>
+
           <div className="chat-messages">
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <div
-                key={index}
-                className={`chat-message ${message.sender === 'user' ? 'user' : 'bot'}`}
+                key={message.id}
+                className={`chat-message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}
               >
                 <div className="message-content">
                   <p>{message.text}</p>
-                  <span className="message-time">{message.time}</span>
+                  <span className="message-time">
+                    {formatTime(message.timestamp)}
+                  </span>
                 </div>
               </div>
             ))}
+            {isTyping && (
+              <div className="chat-message bot-message">
+                <div className="message-content">
+                  <div className="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="chat-actions">
-            <button onClick={openWhatsApp} className="whatsapp-button">
-              <FaWhatsapp /> Shkruani në WhatsApp
-            </button>
-          </div>
-          <form onSubmit={handleSend} className="chat-input-form">
+
+          <form onSubmit={handleSendMessage} className="chat-input-form">
             <input
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Shkruani mesazhin tuaj..."
               className="chat-input"
+              aria-label="Shkruani mesazhin"
             />
-            <button type="submit" className="chat-send">
+            <button
+              type="submit"
+              className="chat-send-btn"
+              aria-label="Dërgo mesazhin"
+            >
               <FaPaperPlane />
             </button>
           </form>
+
+          <div className="chat-footer">
+            <p>Ose na kontaktoni në <a href="tel:+38345444244">045 444 244</a></p>
+          </div>
         </div>
       )}
     </>

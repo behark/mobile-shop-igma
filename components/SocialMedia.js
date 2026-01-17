@@ -11,7 +11,7 @@ export default function SocialMedia() {
     {
       name: 'Instagram',
       icon: FaInstagram,
-      url: '#',
+      url: 'https://www.instagram.com/igma2unlock/',
       color: '#E4405F'
     },
     {
@@ -41,7 +41,7 @@ export default function SocialMedia() {
               target={social.url.startsWith('http') ? '_blank' : undefined}
               rel={social.url.startsWith('http') ? 'noopener noreferrer' : undefined}
               className="social-icon"
-              aria-label={social.name}
+              aria-label={`Na ndiqni në ${social.name}`}
               style={{ '--social-color': social.color }}
             >
               <Icon />

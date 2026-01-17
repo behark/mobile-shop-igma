@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { FaCalendarAlt, FaClock, FaUser, FaPhone, FaEnvelope, FaTools } from 'react-icons/fa'
+import { sendEmailNotification, formatBookingEmail } from '@/lib/email-service'
 
 export default function BookingSystem() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function BookingSystem() {
   })
 
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const services = [
     'Ndryshim Ekrani',
@@ -37,39 +39,58 @@ export default function BookingSystem() {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    // In a real app, this would send to a backend
-    const bookingDetails = {
-      ...formData,
-      submittedAt: new Date().toISOString()
-    }
-    
-    // Create mailto link with booking details
-    const subject = encodeURIComponent(`Rezervim: ${formData.service} - ${formData.date}`)
-    const body = encodeURIComponent(
-      `Emri: ${formData.name}\nTelefoni: ${formData.phone}\nEmail: ${formData.email}\n\n` +
-      `Shërbimi: ${formData.service}\nData: ${formData.date}\nKoha: ${formData.time}\n\n` +
-      `Mesazhi: ${formData.message || 'N/A'}`
-    )
-    const mailtoLink = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
-    
-    window.location.href = mailtoLink
-    setSubmitted(true)
-    
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        service: '',
-        date: '',
-        time: '',
-        message: ''
+    setIsSubmitting(true)
+
+    try {
+      // Send email notification
+      const emailData = formatBookingEmail(formData)
+      await sendEmailNotification({
+        to: 'igma2unlock@gmail.com',
+        subject: emailData.subject,
+        body: emailData.body,
+        type: 'booking'
       })
-    }, 3000)
+
+      // Also send mailto as fallback
+      const subject = encodeURIComponent(`Rezervim: ${formData.service} - ${formData.date}`)
+      const body = encodeURIComponent(
+        `Emri: ${formData.name}\nTelefoni: ${formData.phone}\nEmail: ${formData.email}\n\n` +
+        `Shërbimi: ${formData.service}\nData: ${formData.date}\nKoha: ${formData.time}\n\n` +
+        `Mesazhi: ${formData.message || 'N/A'}`
+      )
+      const mailtoLink = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
+      window.location.href = mailtoLink
+
+      setSubmitted(true)
+      
+      setTimeout(() => {
+        setSubmitted(false)
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          service: '',
+          date: '',
+          time: '',
+          message: ''
+        })
+      }, 3000)
+    } catch (error) {
+      console.error('Failed to send booking email:', error)
+      // Still show success and use mailto fallback
+      setSubmitted(true)
+      const subject = encodeURIComponent(`Rezervim: ${formData.service} - ${formData.date}`)
+      const body = encodeURIComponent(
+        `Emri: ${formData.name}\nTelefoni: ${formData.phone}\nEmail: ${formData.email}\n\n` +
+        `Shërbimi: ${formData.service}\nData: ${formData.date}\nKoha: ${formData.time}\n\n` +
+        `Mesazhi: ${formData.message || 'N/A'}`
+      )
+      window.location.href = `mailto:igma2unlock@gmail.com?subject=${subject}&body=${body}`
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   // Get minimum date (today)
@@ -200,8 +221,12 @@ export default function BookingSystem() {
                   placeholder="Përshkruani problemin ose çfarëdo informacioni tjetër..."
                 />
               </div>
-              <button type="submit" className="btn btn-primary booking-submit">
-                Rezervo Termin
+              <button 
+                type="submit" 
+                className="btn btn-primary booking-submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Duke dërguar...' : 'Rezervo Termin'}
               </button>
             </form>
           )}

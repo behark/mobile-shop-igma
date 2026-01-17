@@ -1,54 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useInView } from 'react-intersection-observer'
+import ImageLightbox from './ImageLightbox'
+import { galleryImages, getImageWithFallback } from '@/lib/image-config'
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState(null)
+  const [lightboxIndex, setLightboxIndex] = useState(0)
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   })
 
-  // Placeholder gallery items - replace with actual images
-  const galleryItems = [
-    {
-      id: 1,
-      title: 'Riparim Ekrani iPhone',
-      category: 'Ndryshim Ekrani',
-      icon: '📱'
-    },
-    {
-      id: 2,
-      title: 'Riparim Baterie Samsung',
-      category: 'Ndryshim Baterie',
-      icon: '🔋'
-    },
-    {
-      id: 3,
-      title: 'Dekodim Telefoni',
-      category: 'Dekodim',
-      icon: '🔓'
-    },
-    {
-      id: 4,
-      title: 'Riparim Kamere',
-      category: 'Riparim',
-      icon: '📷'
-    },
-    {
-      id: 5,
-      title: 'Ndryshim Xham',
-      category: 'Ndryshim Xham',
-      icon: '🖥️'
-    },
-    {
-      id: 6,
-      title: 'Riparim Kompleks',
-      category: 'Riparim',
-      icon: '🔧'
-    }
-  ]
+  // Use images from config - will use real images if available, icons as fallback
+  const galleryItems = galleryImages.map(item => ({
+    ...item,
+    imageData: getImageWithFallback(item)
+  }))
 
   return (
     <section id="gallery" className="gallery" ref={ref}>
@@ -59,33 +29,51 @@ export default function Gallery() {
         </div>
         <div className="gallery-grid">
           {galleryItems.map((item, index) => (
-            <div
+            <button
               key={item.id}
               className={`gallery-item ${inView ? 'animate-fadeIn' : ''}`}
               style={{ animationDelay: `${index * 0.1}s` }}
-              onClick={() => setSelectedImage(item)}
+              onClick={() => {
+                setLightboxIndex(index)
+                setSelectedImage(item)
+              }}
+              aria-label={`Shfaq ${item.title}`}
             >
               <div className="gallery-image">
-                <div className="gallery-placeholder">{item.icon}</div>
+                {item.imageData.type === 'image' ? (
+                  <Image
+                    src={item.imageData.src}
+                    alt={item.imageData.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onError={(e) => {
+                      // Fallback to icon if image fails to load
+                      e.target.style.display = 'none'
+                      e.target.nextSibling.style.display = 'flex'
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className="gallery-placeholder"
+                  style={{ display: item.imageData.type === 'icon' ? 'flex' : 'none' }}
+                >
+                  {item.imageData.icon}
+                </div>
               </div>
               <div className="gallery-overlay">
                 <h3>{item.title}</h3>
                 <p>{item.category}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
         {selectedImage && (
-          <div className="gallery-modal" onClick={() => setSelectedImage(null)}>
-            <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
-              <button className="gallery-close" onClick={() => setSelectedImage(null)}>×</button>
-              <div className="gallery-modal-image">
-                <div className="gallery-placeholder large">{selectedImage.icon}</div>
-              </div>
-              <h3>{selectedImage.title}</h3>
-              <p>{selectedImage.category}</p>
-            </div>
-          </div>
+          <ImageLightbox
+            images={galleryItems}
+            initialIndex={lightboxIndex}
+            onClose={() => setSelectedImage(null)}
+          />
         )}
       </div>
     </section>

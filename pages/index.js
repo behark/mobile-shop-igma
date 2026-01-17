@@ -1,30 +1,42 @@
 import Head from 'next/head'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import Navbar from '@/components/Navbar'
+import StructuredData from '@/components/StructuredData'
 import Hero from '@/components/Hero'
 import Services from '@/components/Services'
 import Benefits from '@/components/Benefits'
-import Products from '@/components/Products'
-import SocialProof from '@/components/SocialProof'
-import About from '@/components/About'
-import ServiceProcess from '@/components/ServiceProcess'
-import Gallery from '@/components/Gallery'
-import Testimonials from '@/components/Testimonials'
-import Pricing from '@/components/Pricing'
-import FAQ from '@/components/FAQ'
-import OpeningHours from '@/components/OpeningHours'
-import GoogleMaps from '@/components/GoogleMaps'
-import Contact from '@/components/Contact'
-import Footer from '@/components/Footer'
-import FloatingWhatsApp from '@/components/FloatingWhatsApp'
-import QuoteCalculator from '@/components/QuoteCalculator'
-import BookingSystem from '@/components/BookingSystem'
-import OnlineStore from '@/components/OnlineStore'
-import RepairTracking from '@/components/RepairTracking'
-import Newsletter from '@/components/Newsletter'
-import LiveChat from '@/components/LiveChat'
-import BackToTop from '@/components/BackToTop'
+import OpeningHoursWidget from '@/components/OpeningHoursWidget'
+import LocationPreview from '@/components/LocationPreview'
+import EmergencyRepair from '@/components/EmergencyRepair'
 
+// Lazy load components below the fold with loading skeletons
+const Products = dynamic(() => import('@/components/Products'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const Statistics = dynamic(() => import('@/components/Statistics'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const SocialProof = dynamic(() => import('@/components/SocialProof'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const ReviewsRatings = dynamic(() => import('@/components/ReviewsRatings'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const Gallery = dynamic(() => import('@/components/Gallery'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const Contact = dynamic(() => import('@/components/Contact'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
+const Footer = dynamic(() => import('@/components/Footer'))
+const FloatingWhatsApp = dynamic(() => import('@/components/FloatingWhatsApp'))
+const BackToTop = dynamic(() => import('@/components/BackToTop'))
+
+/**
+ * Streamlined Homepage - Reduced from 20+ sections to 10 key sections
+ * Other sections moved to dedicated pages for better UX
+ */
 export default function Home() {
   return (
     <>
@@ -35,63 +47,144 @@ export default function Home() {
           content="Mobile Shop IGMA - Shërbime profesionale për telefonat mobil në Mitrovicë, Kosovë. Shitje telefonash, riparime, ndërrim ekranesh dhe shërbime dekodimi."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="keywords" content="riparim telefonash, dekodim telefonash, ndryshim ekrani, Mitrovicë, Kosovë, mobile shop, IGMA" />
+        <meta name="author" content="Mobile Shop IGMA" />
+        <link rel="canonical" href="https://igmaunlock.com" />
         <link rel="icon" href="/favicon.ico" />
+        
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://igmaunlock.com" />
+        <meta property="og:title" content="Mobile Shop IGMA - Shërbime Telefonash Mobil" />
+        <meta property="og:description" content="Shërbime profesionale për telefonat mobil në Mitrovicë, Kosovë. Shitje, riparime, ndërrim ekranesh dhe shërbime dekodimi." />
+        <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
+        <meta property="og:locale" content="sq_AL" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://igmaunlock.com" />
+        <meta name="twitter:title" content="Mobile Shop IGMA - Shërbime Telefonash Mobil" />
+        <meta name="twitter:description" content="Shërbime profesionale për telefonat mobil në Mitrovicë, Kosovë." />
+        <meta name="twitter:image" content="https://igmaunlock.com/logo.jpg" />
       </Head>
+      <StructuredData />
 
       <Navbar />
-      <Hero />
-      <Services />
-      <Benefits />
-      <QuoteCalculator />
-      <Products />
-      <OnlineStore />
-      <SocialProof />
-      <section className="quick-links">
-        <div className="container">
-          <div className="quick-links-grid">
-            <Link href="/services" className="quick-link-card">
-              <div className="quick-link-icon">🔧</div>
-              <h3>Shërbimet Tona</h3>
-              <p>Shikoni të gjitha shërbimet që ofrojmë</p>
-              <span className="quick-link-arrow">→</span>
-            </Link>
-            <Link href="/about" className="quick-link-card">
-              <div className="quick-link-icon">ℹ️</div>
-              <h3>Rreth Nesh</h3>
-              <p>Mësoni më shumë rreth kompanisë sonë</p>
-              <span className="quick-link-arrow">→</span>
-            </Link>
-            <Link href="/gallery" className="quick-link-card">
-              <div className="quick-link-icon">📸</div>
-              <h3>Galeria</h3>
-              <p>Shikoni punët dhe riparimet tona</p>
-              <span className="quick-link-arrow">→</span>
-            </Link>
-            <Link href="/contact" className="quick-link-card">
-              <div className="quick-link-icon">📞</div>
-              <h3>Kontakt</h3>
-              <p>Na kontaktoni për çdo pyetje</p>
-              <span className="quick-link-arrow">→</span>
-            </Link>
+      <main id="main-content">
+        {/* 1. Hero Section - First Impression */}
+        <Hero />
+
+        {/* 1.5. Opening Hours Widget */}
+        <section className="opening-hours-widget-section">
+          <div className="container">
+            <OpeningHoursWidget />
           </div>
-        </div>
-      </section>
-      <RepairTracking />
-      <BookingSystem />
-      <About />
-      <ServiceProcess />
-      <Gallery />
-      <Testimonials />
-      <Pricing />
-      <FAQ />
-      <OpeningHours />
-      <GoogleMaps />
-      <Contact />
-      <Newsletter />
-      <Footer />
-      <FloatingWhatsApp />
-      <LiveChat />
-      <BackToTop />
+        </section>
+
+        {/* 2. Services - Core Offering */}
+        <Services />
+
+        {/* 2.5. Emergency Repair CTA - Early visibility for urgent needs */}
+        <EmergencyRepair />
+
+        {/* 3. Benefits - Why Choose Us */}
+        <Benefits />
+
+        {/* 4. Products - Show Products */}
+        <Products />
+
+        {/* 5. Statistics - Trust Building */}
+        <Statistics />
+
+        {/* 6. Quick Navigation Links */}
+        <section className="quick-links">
+          <div className="container">
+            <div className="section-header">
+              <h2>Shfletoni Faqen Tonë</h2>
+              <p>Gjeni informacionin që kërkoni</p>
+            </div>
+            <div className="quick-links-grid">
+              <Link href="/services" className="quick-link-card">
+                <div className="quick-link-icon">🔧</div>
+                <h3>Shërbimet Tona</h3>
+                <p>Shikoni të gjitha shërbimet që ofrojmë</p>
+                <span className="quick-link-arrow">→</span>
+              </Link>
+              <Link href="/about" className="quick-link-card">
+                <div className="quick-link-icon">ℹ️</div>
+                <h3>Rreth Nesh</h3>
+                <p>Mësoni më shumë rreth kompanisë sonë</p>
+                <span className="quick-link-arrow">→</span>
+              </Link>
+              <Link href="/gallery" className="quick-link-card">
+                <div className="quick-link-icon">📸</div>
+                <h3>Galeria</h3>
+                <p>Shikoni punët dhe riparimet tona</p>
+                <span className="quick-link-arrow">→</span>
+              </Link>
+              <Link href="/contact" className="quick-link-card">
+                <div className="quick-link-icon">📞</div>
+                <h3>Kontakt</h3>
+                <p>Na kontaktoni për çdo pyetje</p>
+                <span className="quick-link-arrow">→</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. Social Proof - Trust Building */}
+        <SocialProof />
+
+        {/* 8. Featured Gallery - Show Recent Work */}
+        <section className="featured-gallery">
+          <div className="container">
+            <div className="section-header">
+              <h2>Punët Tona</h2>
+              <p>Shikoni disa nga riparimet tona më të fundit</p>
+            </div>
+            <Gallery />
+            <div className="text-center" style={{ marginTop: '2rem' }}>
+              <Link href="/gallery" className="btn btn-primary">
+                Shikoni Të Gjithë Galerinë →
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 9. Reviews & Ratings - Social Proof */}
+        <ReviewsRatings />
+
+        {/* 9.5. Location Preview - After trust building, show where to find us */}
+        <LocationPreview />
+
+        {/* 10. Call to Action Section */}
+        <section className="cta-section">
+          <div className="container">
+            <div className="cta-content">
+              <h2>Gati për të Filluar?</h2>
+              <p>Kontaktoni ne sot për një konsultim falas ose rezervoni një termin</p>
+              <div className="cta-buttons">
+                <Link href="/contact" className="btn btn-primary btn-lg">
+                  Na Kontaktoni
+                </Link>
+                <Link href="/contact#booking" className="btn btn-secondary btn-lg">
+                  Rezervo Termin
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 11. Contact Section - Minimal */}
+        <Contact />
+
+        {/* 12. Footer */}
+        <Footer />
+
+        {/* Floating Elements */}
+        <FloatingWhatsApp />
+        <BackToTop />
+      </main>
     </>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import { FaPhone } from 'react-icons/fa'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -46,10 +47,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`} role="navigation" aria-label="Navigimi kryesor">
+      <a href="#main-content" className="skip-to-main">Kalo te përmbajtja kryesore</a>
       <div className="container">
         <div className="nav-wrapper">
-          <Link href="/" className="logo-link">
+          <Link href="/" className="logo-link" aria-label="IGMA Mobile Shop - Shtëpia">
             <div className="logo">
               <Image 
                 src="/logo.jpg" 
@@ -62,9 +64,9 @@ export default function Navbar() {
               <span className="logo-text">IGMA Mobile Shop</span>
             </div>
           </Link>
-          <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`}>
-            <li>
-              <Link href="/" className="nav-link" onClick={closeMenu}>
+          <ul className={`nav-menu ${isMenuOpen ? 'active' : ''}`} role="menubar">
+            <li role="none">
+              <Link href="/" className="nav-link" onClick={closeMenu} role="menuitem">
                 Shtëpia
               </Link>
             </li>
@@ -74,9 +76,9 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <a href="#products" className="nav-link" onClick={(e) => handleLinkClick(e, '#products')}>
-                Produktet
-              </a>
+              <Link href="/phones" className="nav-link" onClick={closeMenu}>
+                Telefonat
+              </Link>
             </li>
             <li>
               <Link href="/about" className="nav-link" onClick={closeMenu}>
@@ -94,10 +96,26 @@ export default function Navbar() {
               </Link>
             </li>
           </ul>
-          <div className={`hamburger ${isMenuOpen ? 'active' : ''}`} onClick={toggleMenu}>
-            <span></span>
-            <span></span>
-            <span></span>
+          <div className="nav-actions">
+            <a 
+              href="tel:+38345444244" 
+              className="nav-call-button"
+              aria-label="Telefono: 045 444 244"
+            >
+              <FaPhone className="nav-call-icon" />
+              <span className="nav-call-text">045 444 244</span>
+            </a>
+            <button
+              className={`hamburger ${isMenuOpen ? 'active' : ''}`}
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? 'Mbyll menunë' : 'Hap menunë'}
+              aria-expanded={isMenuOpen}
+              aria-controls="nav-menu"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
           </div>
         </div>
       </div>

@@ -90,8 +90,11 @@ export default function RepairTracking() {
                 placeholder="Shkruani ID-në e tracking-ut (p.sh. IGMA001)"
                 className="tracking-input"
                 required
+                aria-label="ID-ja e tracking-ut"
+                aria-describedby="tracking-help"
               />
-              <button type="submit" className="btn btn-primary tracking-button" disabled={loading}>
+              <span id="tracking-help" className="sr-only">Shkruani ID-në që ju është dhënë kur dorëzoni telefonin</span>
+              <button type="submit" className="btn btn-primary tracking-button" disabled={loading} aria-label="Kërko statusin e riparimit">
                 {loading ? 'Duke kërkuar...' : 'Ndjek'}
               </button>
             </div>

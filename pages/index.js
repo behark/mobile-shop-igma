@@ -29,6 +29,9 @@ const Gallery = dynamic(() => import('@/components/Gallery'), {
 const Contact = dynamic(() => import('@/components/Contact'), {
   loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
 })
+const OnlineStore = dynamic(() => import('@/components/OnlineStore'), {
+  loading: () => <div className="component-loading"><div className="skeleton skeleton-card"></div></div>
+})
 const Footer = dynamic(() => import('@/components/Footer'))
 const FloatingWhatsApp = dynamic(() => import('@/components/FloatingWhatsApp'))
 const BackToTop = dynamic(() => import('@/components/BackToTop'))
@@ -93,6 +96,9 @@ export default function Home() {
         {/* 4. Products - Show Products */}
         <Products />
 
+        {/* 4.5. Online Store - Accessories Shopping */}
+        <OnlineStore />
+
         {/* 5. Statistics - Trust Building */}
         <Statistics />
 
@@ -122,6 +128,19 @@ export default function Home() {
                 <p>Shikoni punët dhe riparimet tona</p>
                 <span className="quick-link-arrow">→</span>
               </Link>
+              <a href="#store" className="quick-link-card" onClick={(e) => {
+                e.preventDefault()
+                const element = document.querySelector('#store')
+                if (element) {
+                  const offsetTop = element.offsetTop - 80
+                  window.scrollTo({ top: offsetTop, behavior: 'smooth' })
+                }
+              }}>
+                <div className="quick-link-icon">🛒</div>
+                <h3>Dyqani Online</h3>
+                <p>Bli aksesorë dhe produkte për telefonin tuaj</p>
+                <span className="quick-link-arrow">→</span>
+              </a>
               <Link href="/contact" className="quick-link-card">
                 <div className="quick-link-icon">📞</div>
                 <h3>Kontakt</h3>

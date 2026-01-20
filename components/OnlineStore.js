@@ -1,63 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaShoppingCart, FaPlus, FaMinus, FaCheck } from 'react-icons/fa'
 import Image from 'next/image'
 
 export default function OnlineStore() {
   const [cart, setCart] = useState([])
   const [showCart, setShowCart] = useState(false)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const products = [
-    {
-      id: 1,
-      name: 'Kutitë Premium iPhone',
-      price: 15,
-      image: '📱',
-      category: 'Kutitë',
-      inStock: true
-    },
-    {
-      id: 2,
-      name: 'Kutitë Premium Samsung',
-      price: 12,
-      image: '📱',
-      category: 'Kutitë',
-      inStock: true
-    },
-    {
-      id: 3,
-      name: 'Mbrojtës Ekrani Tempered Glass',
-      price: 8,
-      image: '🛡️',
-      category: 'Aksesorë',
-      inStock: true
-    },
-    {
-      id: 4,
-      name: 'Karikues i Shpejtë',
-      price: 20,
-      image: '🔋',
-      category: 'Aksesorë',
-      inStock: true
-    },
-    {
-      id: 5,
-      name: 'Kabllo USB-C',
-      price: 10,
-      image: '🔌',
-      category: 'Aksesorë',
-      inStock: true
-    },
-    {
-      id: 6,
-      name: 'Kutitë Karl Lagerfeld',
-      price: 10,
-      image: '📱',
-      category: 'Kutitë',
-      inStock: true
-    }
-  ]
+  useEffect(() => {
+    // Load products from API
+    fetch('/api/accessories')
+      .then(res => res.json())
+      .then(data => {
+        setProducts(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Error loading products:', err)
+        setLoading(false)
+      })
+  }, [])
 
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id)
@@ -113,7 +78,16 @@ export default function OnlineStore() {
 
         <div className="store-layout">
           <div className="products-grid">
-            {products.map((product) => (
+            {loading ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>
+                <p>Duke ngarkuar produktet...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>
+                <p>Nuk ka produkte në dispozicion për momentin.</p>
+              </div>
+            ) : (
+              products.map((product) => (
               <div key={product.id} className="product-card-store">
                 <div className="product-image-store">
                   <div className="product-placeholder">{product.image}</div>
@@ -136,7 +110,8 @@ export default function OnlineStore() {
                   </button>
                 </div>
               </div>
-            ))}
+            ))
+            )}
           </div>
 
           {showCart && (

@@ -1,0 +1,531 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Head from 'next/head'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaLock } from 'react-icons/fa'
+
+export default function AdminDashboard() {
+  const [accessories, setAccessories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [password, setPassword] = useState('')
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    image: '📱',
+    category: 'Aksesorë',
+    inStock: true,
+    description: ''
+  })
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123' // Change this or set NEXT_PUBLIC_ADMIN_PASSWORD env var
+
+  useEffect(() => {
+    // Check if already authenticated
+    const authToken = localStorage.getItem('adminToken')
+    if (authToken === ADMIN_PASSWORD) {
+      setIsAuthenticated(true)
+      loadAccessories()
+    } else {
+      setLoading(false)
+    }
+  }, [])
+
+  const handleLogin = (e) => {
+    e.preventDefault()
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true)
+      localStorage.setItem('adminToken', ADMIN_PASSWORD)
+      loadAccessories()
+    } else {
+      setError('Fjalëkalimi i gabuar!')
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    localStorage.removeItem('adminToken')
+    setPassword('')
+  }
+
+  const loadAccessories = async () => {
+    try {
+      const response = await fetch('/api/accessories')
+      if (response.ok) {
+        const data = await response.json()
+        setAccessories(data)
+      }
+    } catch (err) {
+      setError('Gabim në ngarkimin e aksesorëve')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('adminToken')
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+
+    try {
+      if (editingId) {
+        // Update existing
+        const response = await fetch('/api/accessories', {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            id: editingId,
+            ...formData,
+            price: parseFloat(formData.price)
+          })
+        })
+
+        if (response.ok) {
+          setSuccess('Aksesori u përditësua me sukses!')
+          setShowAddForm(false)
+          setEditingId(null)
+          resetForm()
+          loadAccessories()
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          setError(`Gabim në përditësimin e aksesorit: ${errorData.error || response.statusText}`)
+        }
+      } else {
+        // Add new
+        const response = await fetch('/api/accessories', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            ...formData,
+            price: parseFloat(formData.price)
+          })
+        })
+
+        if (response.ok) {
+          setSuccess('Aksesori u shtua me sukses!')
+          setShowAddForm(false)
+          resetForm()
+          loadAccessories()
+        } else {
+          const errorData = await response.json().catch(() => ({}))
+          setError(`Gabim në shtimin e aksesorit: ${errorData.error || response.statusText}`)
+        }
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      setError(`Gabim në komunikim me serverin: ${err.message}`)
+    }
+  }
+
+  const handleEdit = (accessory) => {
+    setFormData({
+      name: accessory.name,
+      price: accessory.price.toString(),
+      image: accessory.image,
+      category: accessory.category,
+      inStock: accessory.inStock,
+      description: accessory.description || ''
+    })
+    setEditingId(accessory.id)
+    setShowAddForm(true)
+    setError('')
+    setSuccess('')
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm('Jeni të sigurt që dëshironi të fshini këtë aksesori?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/accessories?id=${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      })
+
+      if (response.ok) {
+        setSuccess('Aksesori u fshi me sukses!')
+        loadAccessories()
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        setError(`Gabim në fshirjen e aksesorit: ${errorData.error || response.statusText}`)
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      setError(`Gabim në komunikim me serverin: ${err.message}`)
+    }
+  }
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      price: '',
+      image: '📱',
+      category: 'Aksesorë',
+      inStock: true,
+      description: ''
+    })
+    setEditingId(null)
+  }
+
+  const cancelForm = () => {
+    setShowAddForm(false)
+    resetForm()
+    setError('')
+    setSuccess('')
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Head>
+          <title>Admin Dashboard - Mobile Shop IGMA</title>
+        </Head>
+        <Navbar />
+        <main style={{ paddingTop: '100px', minHeight: '80vh' }}>
+          <div className="container" style={{ maxWidth: '400px', margin: '0 auto' }}>
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <FaLock size={48} style={{ color: '#007bff', marginBottom: '1rem' }} />
+                <h1 style={{ marginBottom: '0.5rem' }}>Admin Dashboard</h1>
+                <p style={{ color: '#666' }}>Futni fjalëkalimin për të hyrë</p>
+              </div>
+              <form onSubmit={handleLogin}>
+                {error && (
+                  <div style={{
+                    background: '#fee',
+                    color: '#c33',
+                    padding: '0.75rem',
+                    borderRadius: '4px',
+                    marginBottom: '1rem'
+                  }}>
+                    {error}
+                  </div>
+                )}
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                    Fjalëkalimi
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                >
+                  Hyr
+                </button>
+              </form>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Admin Dashboard - Menaxhimi i Aksesorëve | Mobile Shop IGMA</title>
+      </Head>
+      <Navbar />
+      <main style={{ paddingTop: '100px', minHeight: '80vh' }}>
+        <div className="container">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '2rem'
+          }}>
+            <div>
+              <h1 style={{ marginBottom: '0.5rem' }}>Admin Dashboard</h1>
+              <p style={{ color: '#666' }}>Menaxhoni aksesorët dhe produktet</p>
+            </div>
+            <div>
+              <button
+                onClick={() => {
+                  setShowAddForm(true)
+                  resetForm()
+                }}
+                className="btn btn-primary"
+                style={{ marginRight: '1rem' }}
+              >
+                <FaPlus /> Shto Aksesori
+              </button>
+              <button onClick={handleLogout} className="btn btn-secondary">
+                Dil
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: '#fee',
+              color: '#c33',
+              padding: '1rem',
+              borderRadius: '4px',
+              marginBottom: '1rem'
+            }}>
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div style={{
+              background: '#efe',
+              color: '#3c3',
+              padding: '1rem',
+              borderRadius: '4px',
+              marginBottom: '1rem'
+            }}>
+              {success}
+            </div>
+          )}
+
+          {showAddForm && (
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+              marginBottom: '2rem'
+            }}>
+              <h2 style={{ marginBottom: '1.5rem' }}>
+                {editingId ? 'Përditëso Aksesori' : 'Shto Aksesori i Ri'}
+              </h2>
+              <form onSubmit={handleSubmit}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                      Emri *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                      Çmimi (€) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                      Ikona/Emoji
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      placeholder="📱"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                      Kategoria
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #ddd',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      <option value="Aksesorë">Aksesorë</option>
+                      <option value="Kutitë">Kutitë</option>
+                      <option value="Mbrojtës Ekrani">Mbrojtës Ekrani</option>
+                      <option value="Karikues">Karikues</option>
+                      <option value="Kabllo">Kabllo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                    Përshkrimi
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows="3"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '4px',
+                      fontFamily: 'inherit'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.inStock}
+                      onChange={(e) => setFormData({ ...formData, inStock: e.target.checked })}
+                    />
+                    <span>Në Stok</span>
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button type="submit" className="btn btn-primary">
+                    <FaSave /> {editingId ? 'Përditëso' : 'Ruaj'}
+                  </button>
+                  <button type="button" onClick={cancelForm} className="btn btn-secondary">
+                    <FaTimes /> Anulo
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p>Duke ngarkuar...</p>
+            </div>
+          ) : (
+            <div style={{
+              background: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+              overflow: 'hidden'
+            }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f5f5f5' }}>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Ikona</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Emri</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Kategoria</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Çmimi</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Stoku</th>
+                    <th style={{ padding: '1rem', textAlign: 'right', borderBottom: '2px solid #ddd' }}>Veprime</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {accessories.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#666' }}>
+                        Nuk ka aksesorë. Shtoni të parin!
+                      </td>
+                    </tr>
+                  ) : (
+                    accessories.map((accessory) => (
+                      <tr key={accessory.id} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '1rem', fontSize: '1.5rem' }}>{accessory.image}</td>
+                        <td style={{ padding: '1rem' }}>
+                          <strong>{accessory.name}</strong>
+                          {accessory.description && (
+                            <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+                              {accessory.description}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: '1rem' }}>{accessory.category}</td>
+                        <td style={{ padding: '1rem' }}>{accessory.price}€</td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '12px',
+                            fontSize: '0.875rem',
+                            background: accessory.inStock ? '#d4edda' : '#f8d7da',
+                            color: accessory.inStock ? '#155724' : '#721c24'
+                          }}>
+                            {accessory.inStock ? 'Në Stok' : 'Jashtë Stokut'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem', textAlign: 'right' }}>
+                          <button
+                            onClick={() => handleEdit(accessory)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ marginRight: '0.5rem' }}
+                          >
+                            <FaEdit /> Ndrysho
+                          </button>
+                          <button
+                            onClick={() => handleDelete(accessory.id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            <FaTrash /> Fshi
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </>
+  )
+}

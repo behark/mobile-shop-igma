@@ -76,9 +76,25 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <Link href="/phones" className="nav-link" onClick={closeMenu}>
-                Telefonat
-              </Link>
+              <a 
+                href="#store" 
+                className="nav-link" 
+                onClick={(e) => {
+                  e.preventDefault()
+                  closeMenu()
+                  if (router.pathname === '/') {
+                    const element = document.querySelector('#store')
+                    if (element) {
+                      const offsetTop = element.offsetTop - 80
+                      window.scrollTo({ top: offsetTop, behavior: 'smooth' })
+                    }
+                  } else {
+                    router.push('/#store')
+                  }
+                }}
+              >
+                Dyqani
+              </a>
             </li>
             <li>
               <Link href="/about" className="nav-link" onClick={closeMenu}>

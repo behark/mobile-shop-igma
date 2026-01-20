@@ -223,9 +223,9 @@ export default function AdminDashboard() {
       return
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Imazhi është shumë i madh. Maksimumi është 5MB.')
+    // Validate file size (max 4.5MB for Vercel Blob server uploads)
+    if (file.size > 4.5 * 1024 * 1024) {
+      setError('Imazhi është shumë i madh. Maksimumi është 4.5MB.')
       return
     }
 

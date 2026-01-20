@@ -87,10 +87,36 @@ export default function OnlineStore() {
                 <p>Nuk ka produkte në dispozicion për momentin.</p>
               </div>
             ) : (
-              products.map((product) => (
+              products.map((product) => {
+                // Check if image is a URL or base64 data URL
+                const isImageUrl = product.image && (product.image.startsWith('http') || product.image.startsWith('data:image'))
+                
+                return (
               <div key={product.id} className="product-card-store">
                 <div className="product-image-store">
-                  <div className="product-placeholder">{product.image}</div>
+                  {isImageUrl ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '8px'
+                      }}
+                      onError={(e) => {
+                        // Fallback to emoji if image fails to load
+                        e.target.style.display = 'none'
+                        e.target.nextSibling.style.display = 'flex'
+                      }}
+                    />
+                  ) : null}
+                  <div 
+                    className="product-placeholder" 
+                    style={{ display: isImageUrl ? 'none' : 'flex' }}
+                  >
+                    {product.image || '📱'}
+                  </div>
                   {!product.inStock && (
                     <div className="out-of-stock">Jashtë Stokut</div>
                   )}
@@ -110,7 +136,8 @@ export default function OnlineStore() {
                   </button>
                 </div>
               </div>
-            ))
+            )
+            })
             )}
           </div>
 
@@ -127,7 +154,28 @@ export default function OnlineStore() {
                   cart.map((item) => (
                     <div key={item.id} className="cart-item">
                       <div className="cart-item-image">
-                        <div className="cart-placeholder">{item.image}</div>
+                        {item.image && (item.image.startsWith('http') || item.image.startsWith('data:image')) ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              borderRadius: '4px'
+                            }}
+                            onError={(e) => {
+                              e.target.style.display = 'none'
+                              e.target.nextSibling.style.display = 'flex'
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className="cart-placeholder"
+                          style={{ display: (item.image && (item.image.startsWith('http') || item.image.startsWith('data:image'))) ? 'none' : 'flex' }}
+                        >
+                          {item.image || '📱'}
+                        </div>
                       </div>
                       <div className="cart-item-details">
                         <h4>{item.name}</h4>

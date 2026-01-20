@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaLock } from 'react-icons/fa'
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes, FaLock, FaImage, FaUpload } from 'react-icons/fa'
 
 export default function AdminDashboard() {
   const [accessories, setAccessories] = useState([])
@@ -23,6 +23,8 @@ export default function AdminDashboard() {
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [imagePreview, setImagePreview] = useState(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   useEffect(() => {
     // Check if already authenticated
@@ -162,6 +164,12 @@ export default function AdminDashboard() {
       inStock: accessory.inStock,
       description: accessory.description || ''
     })
+    // Set image preview if it's a URL (not emoji)
+    if (accessory.image && (accessory.image.startsWith('http') || accessory.image.startsWith('data:image'))) {
+      setImagePreview(accessory.image)
+    } else {
+      setImagePreview(null)
+    }
     setEditingId(accessory.id)
     setShowAddForm(true)
     setError('')
@@ -201,7 +209,74 @@ export default function AdminDashboard() {
       inStock: true,
       description: ''
     })
+    setImagePreview(null)
     setEditingId(null)
+  }
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Ju lutem zgjidhni një imazh (JPG, PNG, etc.)')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Imazhi është shumë i madh. Maksimumi është 5MB.')
+      return
+    }
+
+    setUploadingImage(true)
+    setError('')
+
+    try {
+      // Convert to base64
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        const base64Image = reader.result
+
+        // Show preview
+        setImagePreview(base64Image)
+
+        // Upload to server
+        try {
+          const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              image: base64Image,
+              filename: `product-${Date.now()}-${file.name}`,
+            }),
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            setFormData({ ...formData, image: data.url })
+            setSuccess('Imazhi u ngarkua me sukses!')
+          } else {
+            const errorData = await response.json().catch(() => ({}))
+            setError(errorData.error || 'Gabim në ngarkimin e imazhit')
+            setImagePreview(null)
+          }
+        } catch (err) {
+          console.error('Upload error:', err)
+          setError('Gabim në ngarkimin e imazhit')
+          setImagePreview(null)
+        } finally {
+          setUploadingImage(false)
+        }
+      }
+      reader.readAsDataURL(file)
+    } catch (err) {
+      console.error('Image processing error:', err)
+      setError('Gabim në përpunimin e imazhit')
+      setUploadingImage(false)
+    }
   }
 
   const cancelForm = () => {
@@ -387,15 +462,71 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                    Imazhi i Produktit
+                  </label>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                    <div style={{ flex: 1 }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        disabled={uploadingImage}
+                        style={{
+                          width: '100%',
+                          padding: '0.75rem',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          cursor: uploadingImage ? 'not-allowed' : 'pointer'
+                        }}
+                      />
+                      <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+                        Ose përdorni emoji/ikonë më poshtë (maksimumi 5MB për imazh)
+                      </p>
+                    </div>
+                    {imagePreview && (
+                      <div style={{
+                        width: '100px',
+                        height: '100px',
+                        borderRadius: '8px',
+                        overflow: 'hidden',
+                        border: '2px solid #ddd',
+                        flexShrink: 0
+                      }}>
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {uploadingImage && (
+                    <p style={{ color: '#007bff', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                      Duke ngarkuar imazhin...
+                    </p>
+                  )}
+                </div>
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                      Ikona/Emoji
+                      Ikona/Emoji (Alternativë)
                     </label>
                     <input
                       type="text"
                       value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      onChange={(e) => {
+                        setFormData({ ...formData, image: e.target.value })
+                        if (e.target.value && !e.target.value.startsWith('http') && !e.target.value.startsWith('data:image')) {
+                          setImagePreview(null)
+                        }
+                      }}
                       placeholder="📱"
                       style={{
                         width: '100%',
@@ -404,6 +535,9 @@ export default function AdminDashboard() {
                         borderRadius: '4px'
                       }}
                     />
+                    <p style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+                      Ose vendosni një emoji/ikonë nëse nuk keni imazh
+                    </p>
                   </div>
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -499,9 +633,36 @@ export default function AdminDashboard() {
                       </td>
                     </tr>
                   ) : (
-                    accessories.map((accessory) => (
+                    accessories.map((accessory) => {
+                      const isImageUrl = accessory.image && (accessory.image.startsWith('http') || accessory.image.startsWith('data:image'))
+                      
+                      return (
                       <tr key={accessory.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '1rem', fontSize: '1.5rem' }}>{accessory.image}</td>
+                        <td style={{ padding: '1rem' }}>
+                          {isImageUrl ? (
+                            <img
+                              src={accessory.image}
+                              alt={accessory.name}
+                              style={{
+                                width: '50px',
+                                height: '50px',
+                                objectFit: 'cover',
+                                borderRadius: '4px',
+                                border: '1px solid #ddd'
+                              }}
+                              onError={(e) => {
+                                e.target.style.display = 'none'
+                                e.target.nextSibling.style.display = 'inline-block'
+                              }}
+                            />
+                          ) : null}
+                          <span style={{ 
+                            fontSize: '1.5rem', 
+                            display: isImageUrl ? 'none' : 'inline-block' 
+                          }}>
+                            {accessory.image || '📱'}
+                          </span>
+                        </td>
                         <td style={{ padding: '1rem' }}>
                           <strong>{accessory.name}</strong>
                           {accessory.description && (
@@ -539,7 +700,8 @@ export default function AdminDashboard() {
                           </button>
                         </td>
                       </tr>
-                    ))
+                    )
+                    })
                   )}
                 </tbody>
               </table>

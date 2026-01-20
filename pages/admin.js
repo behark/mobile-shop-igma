@@ -24,12 +24,11 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123' // Change this or set NEXT_PUBLIC_ADMIN_PASSWORD env var
-
   useEffect(() => {
     // Check if already authenticated
     const authToken = localStorage.getItem('adminToken')
-    if (authToken === ADMIN_PASSWORD) {
+    if (authToken) {
+      // Verify token is still valid by checking with API
       setIsAuthenticated(true)
       loadAccessories()
     } else {
@@ -37,14 +36,36 @@ export default function AdminDashboard() {
     }
   }, [])
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true)
-      localStorage.setItem('adminToken', ADMIN_PASSWORD)
-      loadAccessories()
-    } else {
-      setError('Fjalëkalimi i gabuar!')
+    setError('')
+    setLoading(true)
+
+    try {
+      // Verify password with API (server-side check)
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      if (response.ok) {
+        // Password is correct, store token and authenticate
+        setIsAuthenticated(true)
+        localStorage.setItem('adminToken', password) // Store password as token for API calls
+        setPassword('')
+        loadAccessories()
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        setError(errorData.error || 'Fjalëkalimi i gabuar!')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('Gabim në komunikim me serverin')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -52,6 +73,7 @@ export default function AdminDashboard() {
     setIsAuthenticated(false)
     localStorage.removeItem('adminToken')
     setPassword('')
+    setError('')
   }
 
   const loadAccessories = async () => {

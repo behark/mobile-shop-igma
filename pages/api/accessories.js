@@ -15,7 +15,7 @@ function isAuthenticated(req) {
   // For now, we'll use a simple password check
   // In production, implement proper JWT or session-based auth
   const authHeader = req.headers.authorization
-  const password = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123'
+  const password = process.env.ADMIN_PASSWORD || 'admin123' // Set ADMIN_PASSWORD in Vercel environment variables
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return false

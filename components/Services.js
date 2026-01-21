@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { FaMobileAlt, FaUnlock, FaDesktop, FaTools, FaCheck, FaTimes, FaClock, FaShieldAlt, FaChevronDown, FaChevronUp } from 'react-icons/fa'
@@ -118,8 +116,8 @@ export default function Services() {
             const isExpanded = expandedService === index
 
             return (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={`service-card ${inView ? 'animate-fadeIn' : ''} ${isExpanded ? 'expanded' : ''}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >

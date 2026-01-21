@@ -1,18 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import SocialMedia from './SocialMedia'
+import { handleNavigation } from '@/lib/navigation'
 
 export default function Footer() {
-  const handleLinkClick = (e, href) => {
-    e.preventDefault()
-    const element = document.querySelector(href)
-    if (element) {
-      const offsetTop = element.offsetTop - 80
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth'
-      })
-    }
+  const router = useRouter()
+
+  const onLinkClick = (e, href) => {
+    handleNavigation(e, href, router)
   }
 
   return (
@@ -21,10 +17,10 @@ export default function Footer() {
         <div className="footer-content">
           <div className="footer-section">
             <Link href="/" className="footer-logo-link">
-              <Image 
-                src="/logo.jpg" 
-                alt="IGMA Mobile Shop Logo" 
-                width={150} 
+              <Image
+                src="/logo.jpg"
+                alt="IGMA Mobile Shop Logo"
+                width={150}
                 height={50}
                 className="footer-logo"
               />
@@ -36,29 +32,21 @@ export default function Footer() {
             <h4>Lidhje të Shpejta</h4>
             <ul>
               <li>
-                <a href="#home" onClick={(e) => handleLinkClick(e, '#home')}>
-                  Shtëpia
-                </a>
+                <Link href="/">Shtëpia</Link>
               </li>
               <li>
-                <a href="#services" onClick={(e) => handleLinkClick(e, '#services')}>
-                  Shërbimet
-                </a>
+                <Link href="/services">Shërbimet</Link>
               </li>
               <li>
-                <a href="#products" onClick={(e) => handleLinkClick(e, '#products')}>
+                <a href="#products" onClick={(e) => onLinkClick(e, '#products')}>
                   Produktet
                 </a>
               </li>
               <li>
-                <a href="#about" onClick={(e) => handleLinkClick(e, '#about')}>
-                  Rreth Nesh
-                </a>
+                <Link href="/about">Rreth Nesh</Link>
               </li>
               <li>
-                <a href="#contact" onClick={(e) => handleLinkClick(e, '#contact')}>
-                  Kontakt
-                </a>
+                <Link href="/contact">Kontakt</Link>
               </li>
             </ul>
           </div>

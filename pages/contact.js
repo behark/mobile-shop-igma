@@ -20,6 +20,21 @@ export default function ContactPage() {
           name="description"
           content="Kontaktoni Mobile Shop IGMA në Mitrovicë, Kosovë. Telefoni: 045 444 244, Email: igma2unlock@gmail.com. Na vizitoni në Rr. Mbrëtresha Teutë."
         />
+        <meta name="keywords" content="kontakt, Mobile Shop IGMA, telefon, email, Mitrovicë, Kosovë, lokacioni" />
+        <link rel="canonical" href="https://igmaunlock.com/contact" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://igmaunlock.com/contact" />
+        <meta property="og:title" content="Kontakt - Mobile Shop IGMA" />
+        <meta property="og:description" content="Kontaktoni Mobile Shop IGMA në Mitrovicë, Kosovë. Telefoni: 045 444 244" />
+        <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
+        <meta property="og:locale" content="sq_AL" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Kontakt - Mobile Shop IGMA" />
+        <meta name="twitter:description" content="Kontaktoni Mobile Shop IGMA në Mitrovicë. Tel: 045 444 244" />
       </Head>
 
       <Navbar />
@@ -32,7 +47,7 @@ export default function ContactPage() {
             </p>
           </div>
         </section>
-        
+
         <Contact />
         <section id="booking">
           <BookingSystem />

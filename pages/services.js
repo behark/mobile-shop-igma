@@ -22,6 +22,21 @@ export default function ServicesPage() {
           name="description"
           content="Shërbime profesionale për telefonat mobil: riparime, ndryshim ekranesh, dekodim, shitje telefonash. Garanci 100% dhe çmime konkurruese."
         />
+        <meta name="keywords" content="shërbime telefonash, riparim, ndryshim ekrani, dekodim, Mitrovicë, Kosovë" />
+        <link rel="canonical" href="https://igmaunlock.com/services" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://igmaunlock.com/services" />
+        <meta property="og:title" content="Shërbimet - Mobile Shop IGMA" />
+        <meta property="og:description" content="Shërbime profesionale për telefonat mobil: riparime, ndryshim ekranesh, dekodim, shitje telefonash." />
+        <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
+        <meta property="og:locale" content="sq_AL" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Shërbimet - Mobile Shop IGMA" />
+        <meta name="twitter:description" content="Shërbime profesionale për telefonat mobil në Mitrovicë." />
       </Head>
 
       <Navbar />
@@ -34,7 +49,7 @@ export default function ServicesPage() {
             </p>
           </div>
         </section>
-        
+
         <Services />
         <Benefits />
         <ServiceProcess />

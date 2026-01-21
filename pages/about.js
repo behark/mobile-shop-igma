@@ -17,6 +17,21 @@ export default function AboutPage() {
           name="description"
           content="Mësoni më shumë rreth Mobile Shop IGMA - qendra juaj e besuar për riparime telefonash mobil në Mitrovicë, Kosovë."
         />
+        <meta name="keywords" content="rreth nesh, Mobile Shop IGMA, riparim telefonash, Mitrovicë, Kosovë" />
+        <link rel="canonical" href="https://igmaunlock.com/about" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://igmaunlock.com/about" />
+        <meta property="og:title" content="Rreth Nesh - Mobile Shop IGMA" />
+        <meta property="og:description" content="Mësoni më shumë rreth Mobile Shop IGMA - qendra juaj e besuar për riparime telefonash mobil në Mitrovicë, Kosovë." />
+        <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
+        <meta property="og:locale" content="sq_AL" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Rreth Nesh - Mobile Shop IGMA" />
+        <meta name="twitter:description" content="Mësoni më shumë rreth Mobile Shop IGMA në Mitrovicë, Kosovë." />
       </Head>
 
       <Navbar />

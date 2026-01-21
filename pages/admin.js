@@ -1,5 +1,3 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Navbar from '@/components/Navbar'
@@ -635,72 +633,72 @@ export default function AdminDashboard() {
                   ) : (
                     accessories.map((accessory) => {
                       const isImageUrl = accessory.image && (accessory.image.startsWith('http') || accessory.image.startsWith('data:image'))
-                      
+
                       return (
-                      <tr key={accessory.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '1rem' }}>
-                          {isImageUrl ? (
-                            <img
-                              src={accessory.image}
-                              alt={accessory.name}
-                              style={{
-                                width: '50px',
-                                height: '50px',
-                                objectFit: 'cover',
-                                borderRadius: '4px',
-                                border: '1px solid #ddd'
-                              }}
-                              onError={(e) => {
-                                e.target.style.display = 'none'
-                                e.target.nextSibling.style.display = 'inline-block'
-                              }}
-                            />
-                          ) : null}
-                          <span style={{ 
-                            fontSize: '1.5rem', 
-                            display: isImageUrl ? 'none' : 'inline-block' 
-                          }}>
-                            {accessory.image || '📱'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '1rem' }}>
-                          <strong>{accessory.name}</strong>
-                          {accessory.description && (
-                            <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
-                              {accessory.description}
-                            </div>
-                          )}
-                        </td>
-                        <td style={{ padding: '1rem' }}>{accessory.category}</td>
-                        <td style={{ padding: '1rem' }}>{accessory.price}€</td>
-                        <td style={{ padding: '1rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.75rem',
-                            borderRadius: '12px',
-                            fontSize: '0.875rem',
-                            background: accessory.inStock ? '#d4edda' : '#f8d7da',
-                            color: accessory.inStock ? '#155724' : '#721c24'
-                          }}>
-                            {accessory.inStock ? 'Në Stok' : 'Jashtë Stokut'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '1rem', textAlign: 'right' }}>
-                          <button
-                            onClick={() => handleEdit(accessory)}
-                            className="btn btn-secondary btn-sm"
-                            style={{ marginRight: '0.5rem' }}
-                          >
-                            <FaEdit /> Ndrysho
-                          </button>
-                          <button
-                            onClick={() => handleDelete(accessory.id)}
-                            className="btn btn-danger btn-sm"
-                          >
-                            <FaTrash /> Fshi
-                          </button>
-                        </td>
-                      </tr>
-                    )
+                        <tr key={accessory.id} style={{ borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '1rem' }}>
+                            {isImageUrl ? (
+                              <img
+                                src={accessory.image}
+                                alt={accessory.name}
+                                style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  objectFit: 'cover',
+                                  borderRadius: '4px',
+                                  border: '1px solid #ddd'
+                                }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none'
+                                  e.target.nextSibling.style.display = 'inline-block'
+                                }}
+                              />
+                            ) : null}
+                            <span style={{
+                              fontSize: '1.5rem',
+                              display: isImageUrl ? 'none' : 'inline-block'
+                            }}>
+                              {accessory.image || '📱'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem' }}>
+                            <strong>{accessory.name}</strong>
+                            {accessory.description && (
+                              <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+                                {accessory.description}
+                              </div>
+                            )}
+                          </td>
+                          <td style={{ padding: '1rem' }}>{accessory.category}</td>
+                          <td style={{ padding: '1rem' }}>{accessory.price}€</td>
+                          <td style={{ padding: '1rem' }}>
+                            <span style={{
+                              padding: '0.25rem 0.75rem',
+                              borderRadius: '12px',
+                              fontSize: '0.875rem',
+                              background: accessory.inStock ? '#d4edda' : '#f8d7da',
+                              color: accessory.inStock ? '#155724' : '#721c24'
+                            }}>
+                              {accessory.inStock ? 'Në Stok' : 'Jashtë Stokut'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '1rem', textAlign: 'right' }}>
+                            <button
+                              onClick={() => handleEdit(accessory)}
+                              className="btn btn-secondary btn-sm"
+                              style={{ marginRight: '0.5rem' }}
+                            >
+                              <FaEdit /> Ndrysho
+                            </button>
+                            <button
+                              onClick={() => handleDelete(accessory.id)}
+                              className="btn btn-danger btn-sm"
+                            >
+                              <FaTrash /> Fshi
+                            </button>
+                          </td>
+                        </tr>
+                      )
                     })
                   )}
                 </tbody>

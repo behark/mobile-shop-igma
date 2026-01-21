@@ -1,5 +1,3 @@
-'use client'
-
 export default function Hero() {
   const handleLinkClick = (e, href) => {
     e.preventDefault()

@@ -1,5 +1,3 @@
-'use client'
-
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -88,7 +86,7 @@ export default function PhoneDetailsModal({ phone, isOpen, onClose }) {
                   <div className="phone-modal-image-placeholder" style={{ display: 'none' }}>
                     <span className="phone-modal-placeholder-icon">📱</span>
                   </div>
-                  
+
                   {/* Image Navigation */}
                   {images.length > 1 && (
                     <>
@@ -147,7 +145,7 @@ export default function PhoneDetailsModal({ phone, isOpen, onClose }) {
             <div className="phone-modal-header">
               <div className="phone-modal-brand">{phone.brand}</div>
               <h2 className="phone-modal-title">{phone.model}</h2>
-              
+
               {/* Price */}
               <div className="phone-modal-price-section">
                 <span className="phone-modal-price">€{phone.price}</span>

@@ -1,5 +1,3 @@
-'use client'
-
 import { useState } from 'react'
 import { FaStar, FaUser } from 'react-icons/fa'
 import { useInView } from 'react-intersection-observer'
@@ -97,7 +95,7 @@ export default function ReviewsRatings() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.rating || !formData.review || !formData.name) {
       alert('Ju lutem plotësoni të gjitha fushat e detyrueshme.')
       return
@@ -116,7 +114,7 @@ export default function ReviewsRatings() {
 
     // Add to reviews (in production, this would be handled by API)
     setReviews([newReview, ...reviews])
-    
+
     // Send email notification (optional)
     try {
       // await sendEmailNotification(...)

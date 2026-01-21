@@ -14,6 +14,21 @@ export default function GalleryPage() {
           name="description"
           content="Shikoni punët tona - riparime telefonash mobil, ndryshim ekranesh, dhe më shumë nga Mobile Shop IGMA."
         />
+        <meta name="keywords" content="galeria, punët tona, riparime telefonash, ndryshim ekrani, Mobile Shop IGMA" />
+        <link rel="canonical" href="https://igmaunlock.com/gallery" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://igmaunlock.com/gallery" />
+        <meta property="og:title" content="Galeria - Mobile Shop IGMA" />
+        <meta property="og:description" content="Shikoni punët tona - riparime telefonash mobil dhe më shumë." />
+        <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
+        <meta property="og:locale" content="sq_AL" />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Galeria - Mobile Shop IGMA" />
+        <meta name="twitter:description" content="Shikoni punët tona nga Mobile Shop IGMA." />
       </Head>
 
       <Navbar />

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
@@ -9,6 +10,7 @@ import Benefits from '@/components/Benefits'
 import OpeningHoursWidget from '@/components/OpeningHoursWidget'
 import LocationPreview from '@/components/LocationPreview'
 import EmergencyRepair from '@/components/EmergencyRepair'
+import { scrollToHashOnLoad } from '@/lib/navigation'
 
 // Lazy load components below the fold with loading skeletons
 const Products = dynamic(() => import('@/components/Products'), {
@@ -41,6 +43,11 @@ const BackToTop = dynamic(() => import('@/components/BackToTop'))
  * Other sections moved to dedicated pages for better UX
  */
 export default function Home() {
+  // Handle scroll to hash when navigating from other pages (e.g., /#store)
+  useEffect(() => {
+    scrollToHashOnLoad()
+  }, [])
+
   return (
     <>
       <Head>
@@ -54,7 +61,7 @@ export default function Home() {
         <meta name="author" content="Mobile Shop IGMA" />
         <link rel="canonical" href="https://igmaunlock.com" />
         <link rel="icon" href="/favicon.ico" />
-        
+
         {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://igmaunlock.com" />
@@ -62,7 +69,7 @@ export default function Home() {
         <meta property="og:description" content="Shërbime profesionale për telefonat mobil në Mitrovicë, Kosovë. Shitje, riparime, ndërrim ekranesh dhe shërbime dekodimi." />
         <meta property="og:image" content="https://igmaunlock.com/logo.jpg" />
         <meta property="og:locale" content="sq_AL" />
-        
+
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://igmaunlock.com" />
